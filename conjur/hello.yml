@@ -1,0 +1,15 @@
+---
+- !policy
+  id: hello
+  body:
+  - &secrets
+    - !variable pg/username
+    - !variable pg/password
+    - !variable secret
+
+  - !layer
+
+  - !permit
+    role: !layer
+    privileges: [ read, execute ]
+    resource: *secrets

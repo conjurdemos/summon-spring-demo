@@ -1,0 +1,33 @@
+#!/bin/bash
+#
+# Builds the pet store application in a Docker container for portability
+source lib/util
+
+readonly BUILD_IMAGE="maven:3.5.2-jdk-8"
+
+begin "Pulling build image (${BUILD_IMAGE})"
+{
+  docker pull "${BUILD_IMAGE}"
+} &> "${LOGBUFFER}"
+finish
+
+begin "Building demo application run-time environment image"
+{
+  docker-compose build hello
+} &> "${LOGBUFFER}"
+finish
+
+# Naive early exit if the jar already exists
+[ -f target/hello*.jar ] && exit 0
+
+begin "Building demo application"
+{
+  docker run \
+    --rm \
+    -v $(pwd):/app \
+    -w /app \
+    "${BUILD_IMAGE}" \
+    mvn package
+} &> "${LOGBUFFER}"
+finish
+

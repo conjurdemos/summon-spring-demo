@@ -1,0 +1,5 @@
+applications:
+- name: hello
+  random-route: true
+  services: [ "conjur" ]
+  memory: 512M

@@ -1,0 +1,8 @@
+#!/bin/bash
+source lib/util
+
+begin "Cleaning up any existing docker compose state"
+{
+  docker-compose rm -fs
+} &>/dev/null
+finish

@@ -1,0 +1,49 @@
+#!/bin/bash
+source lib/util
+
+export CONJUR_DEMO_API_KEY=""
+get_api_key () {
+  docker-compose exec conjur \
+    bash -c "cat /root/api-key 2>/dev/null" | tr -d '\r'
+}
+
+./bin/build
+./bin/stop
+
+begin "Starting docker compose containers"
+{
+  docker-compose up -d \
+    conjur \
+    conjur-pg \
+    demo-pg
+} &> "${LOGBUFFER}"
+finish
+
+begin "Waiting for Conjur to be ready"
+{
+  while [[ -z $(get_api_key) ]]; do
+    sleep 1
+  done
+  export CONJUR_DEMO_API_KEY="$(get_api_key)"
+
+  docker-compose exec -T conjur conjurctl wait -r 30 -p 3000
+} &> "${LOGBUFFER}"
+finish
+
+begin "Loading policy files"
+{
+  docker-compose run --rm --entrypoint bash client -c "
+    conjur policy load root /conjur/root.yml
+    conjur policy load spring-apps /conjur/hello.yml
+    conjur variable values add spring-apps/hello/pg/username postgres
+    conjur variable values add spring-apps/hello/pg/password postgres
+    conjur variable values add spring-apps/hello/secret $(openssl rand -hex 12)
+  "
+} &> "${LOGBUFFER}"
+finish
+
+begin "Starting the demo service"
+{
+  docker-compose up -d hello
+} &> "${LOGBUFFER}"
+finish

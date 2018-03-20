@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://demo-pg:5432/postgres
+    username: ${HELLO_PG_USERNAME}
+    password: ${HELLO_PG_PASSWORD}
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update

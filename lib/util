@@ -1,0 +1,32 @@
+#!/bin/bash
+set -eo pipefail
+
+readonly LOGBUFFER="/tmp/.$(date +'%Y%m%d%H%M%S').log"
+
+trap handle_error ERR
+trap cleanup EXIT
+
+touch ${LOGBUFFER}
+
+fatal () {
+  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@" >&2
+  exit 1
+}
+
+begin () {
+  printf "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@... "
+}
+
+finish () {
+  printf "Done.\n"
+}
+
+handle_error () {
+  trap - ERR
+  printf "Failed!\n" >$(tty)
+  cat "${LOGBUFFER}" >$(tty)
+}
+
+cleanup () {
+  rm -rf ${LOGBUFFER}
+}
