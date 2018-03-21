@@ -11,7 +11,7 @@ RUN  apk update \
   && curl -sSL https://github.com/cyberark/summon-conjur/releases/download/v0.5.0/summon-conjur-linux-amd64.tar.gz \
       | tar xz
 
-# Fix for summon-conjur statically linking to libc
+# Fix for summon-conjur dynamically linking to libc
 RUN  mkdir -p /lib64 \
   && ln -fs /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2;
 
