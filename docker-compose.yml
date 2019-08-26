@@ -25,12 +25,12 @@ services:
       - bridge
 
   conjur-pg:
-    image: postgres:9.3
+    image: postgres:9.4
     networks:
       - conjur
 
   demo-pg:
-    image: postgres:9.3
+    image: postgres:9.4
     ports: [ "5432:5432" ]
     networks:
       - demo
